@@ -37,8 +37,6 @@ def store_sample(file_object):
 
 
 def get_sample_path(sha256):
-    # TODO(alex): Determine project based on sha256, not current project.
-    # This not an issue when find is fixed to only show current project files, but may break elsewhere.
     path = os.path.join(
         __project__.get_path(),
         'binaries',

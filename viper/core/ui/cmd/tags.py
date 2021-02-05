@@ -32,7 +32,6 @@ class Tags(Command):
             self.parser.print_usage()
             return
 
-        # TODO: handle situation where addition or deletion of a tag fail.
         db = Database()
 
         if not db.find(key='sha256', value=__sessions__.current.file.sha256):
@@ -41,23 +40,22 @@ class Tags(Command):
             return
 
         if args.add:
-            # Add specified tags to the database's entry belonging to
-            # the opened file.
-            db.add_tags(__sessions__.current.file.sha256, args.add)
+            if not db.add_tags(__sessions__.current.file.sha256, args.add):
+                self.log('error', "Failed to add tags")
+                return
+
             self.log('info', "Tags added to the currently opened file")
 
-            # We refresh the opened session to update the attributes.
-            # Namely, the list of tags returned by the 'info' command
-            # needs to be re-generated, or it wouldn't show the new tags
-            # until the existing session is closed a new one is opened.
+            # We refresh the opened session to update the attributes. Namely, the list of tags returned by the 'info' command
+            # needs to be re-generated, or it wouldn't show the new tags until the existing session is closed a new one is opened.
             self.log('info', "Refreshing session to update attributes...")
             __sessions__.new(__sessions__.current.file.path)
 
         elif args.delete:
-            # Delete the tag from the database.
-            db.delete_tag(args.delete, __sessions__.current.file.sha256)
-            # Refresh the session so that the attributes of the file are
-            # updated.
+            if not db.delete_tag(args.delete, __sessions__.current.file.sha256):
+                self.log('error', "Failed to delete tag")
+                return
+
             self.log('info', "Refreshing session to update attributes...")
             __sessions__.new(__sessions__.current.file.path)
 

@@ -236,7 +236,8 @@ class Database:
 
 		malware_entry = session.query(Malware).filter(Malware.sha256 == sha256).first()
 		if not malware_entry:
-			return
+			print_error("The specified malware ({}) could not be found".format(sha256))
+			return False
 
 		# The tags argument might be a list, a single tag, or a
 		# comma-separated list of tags.
@@ -264,6 +265,8 @@ class Database:
 					session.commit()
 				except SQLAlchemyError:
 					session.rollback()
+					return False
+		return True
 
 	def list_tags(self):
 		session = self.Session()
@@ -281,6 +284,10 @@ class Database:
 		try:
 			# First remove the tag from the sample
 			malware_entry = session.query(Malware).filter(Malware.sha256 == sha256).first()
+			if not malware_entry:
+				print_error("The specified malware ({}) could not be found".format(sha256))
+				return False
+
 			tag = session.query(Tag).filter(Tag.tag == tag_name).first()
 			try:
 				malware_entry = session.query(Malware).filter(Malware.sha256 == sha256).first()
@@ -288,6 +295,7 @@ class Database:
 				session.commit()
 			except Exception:
 				print_error("Tag {0} does not exist for this sample".format(tag_name))
+				return False
 
 			# If tag has no entries drop it
 			count = len(self.find('tag', tag_name))
@@ -298,8 +306,10 @@ class Database:
 		except SQLAlchemyError as e:
 			print_error("Unable to delete tag: {0}".format(e))
 			session.rollback()
+			return False
 		finally:
 			session.close()
+		return True
 
 	def list_notes(self):
 		session = self.Session()
@@ -545,7 +555,6 @@ class Database:
 		offset = int(offset)
 		rows = None
 
-		# TODO(alex): Add a key/option to filter for project as well (Malware.project)
 		if key == 'all':
 			rows = session.query(Malware).options(subqueryload(Malware.tag))
 		elif key == 'ssdeep':

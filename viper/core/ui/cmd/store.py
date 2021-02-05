@@ -54,7 +54,6 @@ class Store(Command):
             args.tags = "".join(args.tags)
 
         def add_file(obj, tags=None):
-            # TODO(alex): Revisit this when projects functionality is fully implemented.
             if get_sample_path(obj.sha256):
                 self.log('warning', "Skip, file \"{0}\" appears to be already stored".format(obj.name))
                 return False
