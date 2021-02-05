@@ -43,6 +43,10 @@ class Copy(Command):
             self.log('error', "No open session. This command expects a file to be open.")
             return
 
+        if (args.project is None):
+            self.parser.print_usage()
+            return
+
         if not __project__.name:
             src_project = "default"
         else:

@@ -20,9 +20,9 @@ class Delete(Command):
 
     def __init__(self):
         super(Delete, self).__init__()
-
-        self.parser.add_argument('-a', '--all', action='store_true', help="Delete ALL files in this project")
-        self.parser.add_argument('-f', '--find', action="store_true", help="Delete ALL files from last find")
+        group = self.parser.add_mutually_exclusive_group()
+        group.add_argument('-a', '--all', action='store_true', help="Delete ALL files in this project")
+        group.add_argument('-f', '--find', action="store_true", help="Delete ALL files from last find")
 
     def run(self, *args):
         try:

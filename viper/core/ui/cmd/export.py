@@ -29,9 +29,9 @@ class Export(Command):
 
     def __init__(self):
         super(Export, self).__init__()
-
-        self.parser.add_argument('-z', '--zip', action='store_true', help="Export session in a zip archive (PW support: No)")
-        self.parser.add_argument('-7', '--sevenzip', action='store_true', help="Export session in a 7z archive (PW support: Yes)")
+        group = self.parser.add_mutually_exclusive_group()
+        group.add_argument('-z', '--zip', action='store_true', help="Export session in a zip archive (PW support: No)")
+        group.add_argument('-7', '--sevenzip', action='store_true', help="Export session in a 7z archive (PW support: Yes)")
         self.parser.add_argument('-p', '--password', action='store_true', help="Protect archive with a password (PW) if supported")
         self.parser.add_argument('value', help="path or archive name")
 

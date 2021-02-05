@@ -103,7 +103,7 @@ class Projects(Command):
             if confirm.lower() != "y":
                 return
 
-            Database().delete_project(args.delete)
+            Database().delete_analysis(args.delete)
 
             try:
                 shutil.rmtree(project_path)

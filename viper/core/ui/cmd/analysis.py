@@ -71,3 +71,6 @@ class Analysis(Command):
 
         elif args.delete:
             db.delete_analysis(args.delete)
+
+        else:
+            self.parser.print_usage()

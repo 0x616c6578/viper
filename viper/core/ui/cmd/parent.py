@@ -17,11 +17,10 @@ class Parent(Command):
 
     def __init__(self):
         super(Parent, self).__init__()
-        # TODO(alex): Convert to argument group. Replace elifs below with ifs when this is done.
-        self.parser.add_argument('-a', '--add', metavar='SHA256', help="Add parent file by sha256")
-        self.parser.add_argument('-d', '--delete', action='store_true', help="Delete Parent")
-        self.parser.add_argument('-o', '--open', action='store_true', help="Open The Parent")
-        self.parser.add_argument('-c', '--children', action='store_true', help='Child query')
+        group = self.parser.add_mutually_exclusive_group()
+        group.add_argument('-a', '--add', metavar='SHA256', help="Add parent file by sha256")
+        group.add_argument('-d', '--delete', action='store_true', help="Delete Parent")
+        group.add_argument('-o', '--open', action='store_true', help="Open The Parent")
 
     
     def run(self, *args):
@@ -36,11 +35,6 @@ class Parent(Command):
             self.parser.print_usage()
             return
 
-        # If no arguments are specified, there's not much to do.
-        if args.add is None and args.delete is None and args.open is None:
-            self.parser.print_usage()
-            return
-
         db = Database()
 
         # TODO(alex): Allow other fields similar to open.py i.e. md5/id
@@ -48,9 +42,6 @@ class Parent(Command):
             self.log('error', "The opened file is not stored in the database. "
                               "If you want to add it use the `store` command.")
             return
-
-        if args.children:
-            db.children_query(__sessions__.current.file.id)
 
         elif args.add:
             if not db.find(key='sha256', value=args.add):
@@ -75,3 +66,7 @@ class Parent(Command):
                 __sessions__.new(get_sample_path(__sessions__.current.file.parent[-64:]))
             else:
                 self.log('info', "No parent set for this sample")
+
+        else:
+            self.parser.print_usage()
+            return

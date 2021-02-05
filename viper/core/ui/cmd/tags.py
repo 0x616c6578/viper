@@ -16,9 +16,9 @@ class Tags(Command):
 
     def __init__(self):
         super(Tags, self).__init__()
-
-        self.parser.add_argument('-a', '--add', metavar='TAG', help="Add tags to the opened file (comma separated)")
-        self.parser.add_argument('-d', '--delete', metavar='TAG', help="Delete a tag from the opened file")
+        group = self.parser.add_mutually_exclusive_group()
+        group.add_argument('-a', '--add', metavar='TAG', help="Add tags to the opened file (comma separated)")
+        group.add_argument('-d', '--delete', metavar='TAG', help="Delete a tag from the opened file")
 
     def run(self, *args):
         try:
@@ -29,13 +29,6 @@ class Tags(Command):
         # This command requires a session to be opened.
         if not __sessions__.is_set():
             self.log('error', "No open session. This command expects a file to be open.")
-            self.parser.print_usage()
-            return
-
-        # If no arguments are specified, there's not much to do.
-        # However, it could make sense to also retrieve a list of existing
-        # tags from this command, and not just from the "find" command alone.
-        if args.add is None and args.delete is None:
             self.parser.print_usage()
             return
 
@@ -60,10 +53,13 @@ class Tags(Command):
             self.log('info', "Refreshing session to update attributes...")
             __sessions__.new(__sessions__.current.file.path)
 
-        if args.delete:
+        elif args.delete:
             # Delete the tag from the database.
             db.delete_tag(args.delete, __sessions__.current.file.sha256)
             # Refresh the session so that the attributes of the file are
             # updated.
             self.log('info', "Refreshing session to update attributes...")
             __sessions__.new(__sessions__.current.file.path)
+
+        else:
+            self.parser.print_usage()
