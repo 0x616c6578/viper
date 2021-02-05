@@ -718,3 +718,21 @@ class Database:
 			session.rollback()
 		finally:
 			session.close()
+
+	def delete_project(self, project):
+		session = self.Session()
+
+		malware = session.query(Malware).filter(Malware.project == project).all()
+		if not malware:
+			print_warning("No malware was found for project '{}".format(project))
+			return
+
+		for sample in malware:
+			try:
+				session.delete(sample)
+				session.commit()
+			except SQLAlchemyError as e:
+				print_error("Unable to delete malware: {0}".format(e))
+				session.rollback()
+			finally:
+				session.close()

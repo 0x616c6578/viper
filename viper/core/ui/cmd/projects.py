@@ -79,7 +79,6 @@ class Projects(Command):
 
                 __project__.close()
         elif args.delete:
-            # TODO(alex): 'cascade' and delete all DB entries with Malware.project = args.delete
             project_to_delete = args.delete
             if project_to_delete == "default":
                 self.log("error", "You can't delete the \"default\" project")
@@ -103,6 +102,8 @@ class Projects(Command):
             confirm = input("Are you sure you want to delete the project? You will permanently delete all associated files! [y/N] ")
             if confirm.lower() != "y":
                 return
+
+            Database().delete_project(args.delete)
 
             try:
                 shutil.rmtree(project_path)
