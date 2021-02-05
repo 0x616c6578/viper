@@ -3,6 +3,7 @@
 This is a fork of the Viper-Framework repository. It has been designed to address a number of design changes which may not be accepted by the original developers. The key focus of these changes is to increase the robustness and automation of the framework so that it may be used on a larger scale more reliably - including better support for a Postgresql database backend.  Specifically:
 
 **v2.0-rc12**
+
 This is a minor release candidate, focussing on normalising the database and implementing better Project support for non-SQLite databases.
 * Changed the Malware parent-child relationship back to an Adjacency list - similar to the main repository, but with an additional relationship to store a collection of children.
 * Replaced the Project table with a singular String field within the Malware table
