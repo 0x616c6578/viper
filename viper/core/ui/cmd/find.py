@@ -20,6 +20,7 @@ class Find(Command):
         group = self.parser.add_mutually_exclusive_group()
         group.add_argument('-t', '--tags', action='store_true', help="List available tags and quit")
         group.add_argument('type', nargs='?', choices=["all", "latest", "name", "type", "mime", "md5", "sha1", "sha256", "tag", "note", "any", "ssdeep"], help="Where to search.")
+        self.parser.add_argument('-a', '--all_projects', action='store_true', help="Search all projects instead of only the current project.")
         self.parser.add_argument("value", nargs='?', help="String to search.")
 
     def run(self, *args):
@@ -41,7 +42,7 @@ class Find(Command):
                 rows = []
                 # For each tag, retrieve the count of files associated with it.
                 for tag in tags:
-                    count = len(db.find('tag', tag.tag))
+                    count = len(db.find('tag', tag.tag, all_projects=args.all_projects))
                     rows.append([tag.tag, count])
 
                 # Generate the table with the results.
@@ -70,7 +71,7 @@ class Find(Command):
             value = None
 
         # Search all the files matching the given parameters.
-        items = db.find(key, value)
+        items = db.find(key=key, value=value, all_projects=args.all_projects)
         if not items:
             return
 

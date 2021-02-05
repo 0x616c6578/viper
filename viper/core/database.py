@@ -540,17 +540,17 @@ class Database:
 
 		return True
 
-	def find(self, key, value=None, offset=0):
+	def find(self, key, value=None, offset=0, all_projects=False):
 		session = self.Session()
 		offset = int(offset)
 		rows = None
 
 		# TODO(alex): Add a key/option to filter for project as well (Malware.project)
 		if key == 'all':
-			rows = session.query(Malware).options(subqueryload(Malware.tag)).all()
+			rows = session.query(Malware).options(subqueryload(Malware.tag))
 		elif key == 'ssdeep':
 			ssdeep_val = str(value)
-			rows = session.query(Malware).filter(Malware.ssdeep.contains(ssdeep_val)).all()
+			rows = session.query(Malware).filter(Malware.ssdeep.contains(ssdeep_val))
 		elif key == 'any':
 			prefix_val = str(value)
 			rows = session.query(Malware).filter(Malware.name.startswith(prefix_val) |
@@ -558,7 +558,7 @@ class Database:
 												 Malware.sha1.startswith(prefix_val) |
 												 Malware.sha256.startswith(prefix_val) |
 												 Malware.type.contains(prefix_val) |
-												 Malware.mime.contains(prefix_val)).all()
+												 Malware.mime.contains(prefix_val))
 		elif key == 'latest':
 			if value:
 				try:
@@ -571,13 +571,13 @@ class Database:
 
 			rows = session.query(Malware).order_by(Malware.id.desc()).limit(value).offset(offset)
 		elif key == 'md5':
-			rows = session.query(Malware).filter(Malware.md5 == value).all()
+			rows = session.query(Malware).filter(Malware.md5 == value)
 		elif key == 'sha1':
-			rows = session.query(Malware).filter(Malware.sha1 == value).all()
+			rows = session.query(Malware).filter(Malware.sha1 == value)
 		elif key == 'sha256':
-			rows = session.query(Malware).filter(Malware.sha256 == value).all()
+			rows = session.query(Malware).filter(Malware.sha256 == value)
 		elif key == 'tag':
-			rows = session.query(Malware).filter(self.tag_filter(value)).all()
+			rows = session.query(Malware).filter(self.tag_filter(value))
 		elif key == 'name':
 			if not value:
 				print_error("You need to specify a valid file name pattern (you can use wildcards)")
@@ -588,16 +588,24 @@ class Database:
 			else:
 				value = '%{0}%'.format(value)
 
-			rows = session.query(Malware).filter(Malware.name.like(value)).all()
+			rows = session.query(Malware).filter(Malware.name.like(value))
 		elif key == 'note':
 			value = '%{0}%'.format(value)
-			rows = session.query(Malware).filter(Malware.note.any(Note.body.like(value))).all()
+			rows = session.query(Malware).filter(Malware.note.any(Note.body.like(value)))
 		elif key == 'type':
-			rows = session.query(Malware).filter(Malware.type.like('%{0}%'.format(value))).all()
+			rows = session.query(Malware).filter(Malware.type.like('%{0}%'.format(value)))
 		elif key == 'mime':
-			rows = session.query(Malware).filter(Malware.mime.like('%{0}%'.format(value))).all()
+			rows = session.query(Malware).filter(Malware.mime.like('%{0}%'.format(value)))
 		else:
 			print_error("No valid term specified")
+
+		# Only show Malware for the current project.
+		if not all_projects:
+			project = __project__.name
+			if not project:
+				project = 'default'
+			rows = rows.filter(Malware.project == project)
+		rows = rows.all()
 
 		return rows
 
