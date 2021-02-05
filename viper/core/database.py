@@ -625,10 +625,16 @@ class Database:
 	def add_parent(self, malware_sha256, parent_sha256):
 		session = self.Session()
 
-		# TODO(alex): Cyclical heirarchy check i.e. ensure future parent is not in recuirsive child list.
 		try:
 			malware = session.query(Malware).filter(Malware.sha256 == malware_sha256).first()
 			parent = session.query(Malware).filter(Malware.sha256 == parent_sha256).first()
+
+			# Check for possible recursion issues caused by a cyclical heirarchy.
+			children = self.get_children(malware.id, recursive=True)
+			if parent.sha256 in children:
+				print_error("Unable to add parent: it is a child object of the specified malware.")
+				return
+
 			malware.parent_id = parent.id
 			session.commit()
 		except SQLAlchemyError as e:
@@ -659,13 +665,16 @@ class Database:
 			parent = session.query(Malware).get(malware.parent_id)
 			return parent
 
-	def get_children(self, parent_id):
+	def get_children(self, parent_id, recursive=False):
 		session = self.Session()
 		children = self.list_children(parent_id)
 		# children = session.query(Malware).filter(Malware.parent_id == parent_id).all()
 		child_samples = ''
 		for child in children:
 			child_samples += '{0},'.format(child.sha256)
+			if recursive:
+				child_samples += self.get_children(child.id, recursive=True)
+
 		return child_samples
 
 	def list_children(self, parent_id):
