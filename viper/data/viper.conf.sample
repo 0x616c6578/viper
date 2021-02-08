@@ -80,9 +80,11 @@ enabled = True
 verbose = False
 
 # Enter a comma separated list of command lines, As you would enter them in the CLI. You can use ; to chain commands.
-# Commands are run in sequence and the output of MODULES is stored if store_output is set to True.
-# commands = yara scan -t, fuzzy, pe compiletime
-commands = yara scan -t, triage
+# These are run in sequence and the output of MODULES is stored if store_output is set to True.
+# Use the help command with viper running to determine whether a command line is a Command or a Module.
+# modules = yara scan -t, fuzzy, pe compiletime
+modules = exif
+commands = info
 
 
 ##

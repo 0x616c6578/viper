@@ -5,7 +5,7 @@
 from viper.common.out import print_info
 from viper.common.out import print_error
 from viper.common.out import print_output
-from viper.core.plugins import __modules__
+from viper.core.plugins import __modules__, load_commands
 from viper.core.session import __sessions__
 from viper.core.database import Database
 from viper.core.config import __config__
@@ -33,7 +33,7 @@ def autorun_module(file_hash):
     if not __sessions__.is_set():
         __sessions__.new(get_sample_path(file_hash))
 
-    for cmd_line in cfg.autorun.commands.split(','):
+    for cmd_line in cfg.autorun.modules.split(','):
         split_commands = cmd_line.split(';')
 
         for split_command in split_commands:
@@ -46,7 +46,7 @@ def autorun_module(file_hash):
 
             try:
                 if root in __modules__:
-                    print_info("Running command \"{0}\"".format(split_command))
+                    print_info("Running module \"{0}\"".format(split_command))
 
                     module = __modules__[root]['obj']()
                     module.set_commandline(args)
@@ -59,6 +59,44 @@ def autorun_module(file_hash):
                         print_output(module.output)
 
                     del(module.output[:])
+                else:
+                    print_error("\"{0}\" is not a valid module. Please check your viper.conf file.".format(cmd_line))
+            except Exception:
+                print_error("Viper was unable to complete the module {0}".format(cmd_line))
+
+
+def autorun_command(file_hash):
+    if not file_hash:
+        return
+
+    if not __sessions__.is_set():
+        __sessions__.new(get_sample_path(file_hash))
+
+    loaded_commands = load_commands()
+
+    # NOTE(Alex): this is a quick hack to determine if no commands are in viper.conf. This is likely to be an issue in other places
+    # and should be addressed in a more efficient manner.
+    autorun_commands = cfg.autorun.commands
+    if not cfg.autorun.commands:
+        return
+
+    for cmd_line in autorun_commands.split(','):
+        split_commands = cmd_line.split(';')
+
+        for split_command in split_commands:
+            split_command = split_command.strip()
+
+            if not split_command:
+                continue
+
+            root, args = parse_commands(split_command)
+
+            try:
+                if root in loaded_commands:
+                    print_info("Running command \"{0}\"".format(split_command))
+                    # TODO(Alex): Find a way to pass args to a Command (abstracts.py).
+                    # The code for Module could just be replicated, but that is likely to break other functionality.
+                    command = loaded_commands[root]['obj']()
                 else:
                     print_error("\"{0}\" is not a valid command. Please check your viper.conf file.".format(cmd_line))
             except Exception:

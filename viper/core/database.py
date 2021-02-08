@@ -725,9 +725,13 @@ class Database:
 		analysis = session.query(Analysis).get(analysis_id)
 		return analysis
 
-	def list_analysis(self):
+	def list_analysis(self, sha256=None):
 		session = self.Session()
-		rows = session.query(Analysis).all()
+		if sha256 is None:
+			rows = session.query(Analysis).all()
+		else:
+			malware = session.query(Malware).filter(Malware.sha256 == sha256).first()
+			rows = malware.analysis
 		return rows
 
 	def delete_analysis(self, id):

@@ -42,6 +42,9 @@ class Command(object):
         ))
         out.print_output([{'type': event_type, 'data': event_data}], console_output['filename'])
 
+    def set_commandline(self, command):
+        self.command_line = command
+
 
 class Module(object):
     cmd = ''

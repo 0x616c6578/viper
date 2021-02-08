@@ -11,9 +11,12 @@
 #   'application/vnd.openxmlformats-officedocument'    will match ALL office document mimetypes
 #   'application/vnd.openxmlformats-officedocument.wordprocessingml'   will match ALL word document mimetypes
 #   'application/vnd.openxmlformats-officedocument.wordprocessingml.template'   will only match word document templates
-[commands]
+[modules]
     application/vnd.openxmlformats-officedocument = office -m, office -v, office -d
     application/json = strings -a
+
+[commands]
+    application/zip = extract
 
 
 # These are all the mime types identified by libmagic, used by the Python magic function (and in turn, Viper).

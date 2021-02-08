@@ -16,8 +16,8 @@ from viper.core.database import Database
 from viper.core.session import __sessions__
 from viper.core.config import __config__
 from viper.core.storage import store_sample, get_sample_path
-from viper.common.autorun import autorun_module
-from viper.common.automime import mimetype_modules
+from viper.common.autorun import autorun_module, autorun_command
+from viper.common.automime import mimetype_modules, mimetype_commands
 
 
 class Store(Command):
@@ -130,7 +130,9 @@ class Store(Command):
                         add_file(file_obj, args.tags)
                         if add_file and __config__.get('autorun').enabled:
                             autorun_module(file_obj.sha256)
-                            mimetype_modules(file_obj.sha256) 
+                            autorun_command(file_obj.sha256)
+                            mimetype_modules(file_obj.sha256)
+                            mimetype_commands(file_obj.sha256)
                             # Close the open session to keep the session table clean
                             __sessions__.close()
 
@@ -149,7 +151,10 @@ class Store(Command):
                     # Open session to the new file.
                     Open().run(*[__sessions__.current.file.sha256])
                     if __config__.get('autorun').enabled:
+                        # TODO(Alex): this is starting to get messy. Move automated commands/modules into a separate common?
                         autorun_module(__sessions__.current.file.sha256)
-                        mimetype_modules(__sessions__.current.file.sha256) 
+                        autorun_command(__sessions__.current.file.sha256)
+                        mimetype_modules(__sessions__.current.file.sha256)
+                        mimetype_commands(__sessions__.current.file.sha256)
             else:
                 self.log('error', "No open session. This command expects a file to be open.")
