@@ -84,8 +84,6 @@ verbose = False
 # Use the help command with viper running to determine whether a command line is a Command or a Module.
 # modules = yara scan -t, fuzzy, pe compiletime
 modules = exif
-commands = info
-
 
 ##
 # Modules

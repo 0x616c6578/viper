@@ -5,7 +5,7 @@
 from viper.common.out import print_info
 from viper.common.out import print_error
 from viper.common.out import print_output
-from viper.core.plugins import __modules__, load_commands
+from viper.core.plugins import load_commands, load_modules
 from viper.core.session import __sessions__
 from viper.core.database import Database
 from viper.core.config import __config__
@@ -43,12 +43,13 @@ def autorun_module(file_hash):
                 continue
 
             root, args = parse_commands(split_command)
+            loaded_modules = load_modules()
 
             try:
-                if root in __modules__:
+                if root in loaded_modules:
                     print_info("Running module \"{0}\"".format(split_command))
 
-                    module = __modules__[root]['obj']()
+                    module = loaded_modules[root]['obj']()
                     module.set_commandline(args)
                     module.run()
 

@@ -14,8 +14,6 @@
 [modules]
     application/vnd.openxmlformats-officedocument = office -m, office -v, office -d
     application/json = strings -a
-
-[commands]
     application/zip = extract
 
 
