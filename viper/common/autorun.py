@@ -33,6 +33,9 @@ def autorun_module(file_hash):
     if not __sessions__.is_set():
         __sessions__.new(get_sample_path(file_hash))
 
+    if not cfg.autorun.modules:
+        return
+
     for cmd_line in cfg.autorun.modules.split(','):
         split_commands = cmd_line.split(';')
 

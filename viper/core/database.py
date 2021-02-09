@@ -694,6 +694,7 @@ class Database:
 
 		return child_samples
 
+	# TODO(Alex): Allow recursive listing,. This is currently achieved with a recursive get_children and subsequent sha256 lookup.
 	def list_children(self, parent_id):
 		session = self.Session()
 		parent = session.query(Malware).get(parent_id)

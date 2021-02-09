@@ -67,8 +67,10 @@ def mimetype_commands(file_hash):
     commands_list = load_commands()
 
     mime_commands = __mimetypes__.get('commands')
-    command_list = []
+    if not mime_commands:
+        return
 
+    command_list = []
     for mimetype in mime_commands:
         if mimetype in __sessions__.current.file.mime:
             command_list.append(mime_commands[mimetype])
