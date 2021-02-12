@@ -767,3 +767,17 @@ class Database:
 				session.rollback()
 			finally:
 				session.close()
+
+	# This is a quick workaround to account for the temporary file names present in viper-web after the upload process has been modified.
+	def rename_malware(self, malware_sha256, malware_name):
+		session = self.Session()
+
+		try:
+			malware = session.query(Malware).filter(Malware.sha256 == malware_sha256).first()
+			malware.name = malware_name
+			session.commit()
+		except SQLAlchemyError as e:
+			print_error("Unable to change malware name: {0}".format(e))
+			session.rollback()
+		finally:
+			session.close()

@@ -43,7 +43,7 @@ class Store(Command):
         try:
             args = self.parser.parse_args(args)
         except SystemExit:
-            return
+            return False
 
         if args.folder is not None:
             # Allows to have spaces in the path.
@@ -83,6 +83,7 @@ class Store(Command):
                     os.unlink(obj.path)
                 except Exception as e:
                     self.log('warning', "Failed deleting file: {0}".format(e))
+                    return False
 
             return True
 
@@ -130,14 +131,13 @@ class Store(Command):
                         add_file(file_obj, args.tags)
                         if add_file and __config__.get('autorun').enabled:
                             autorun_module(file_obj.sha256)
-                            autorun_command(file_obj.sha256)
                             mimetype_modules(file_obj.sha256)
-                            mimetype_commands(file_obj.sha256)
                             # Close the open session to keep the session table clean
                             __sessions__.close()
 
             else:
                 self.log('error', "You specified an invalid folder: {0}".format(args.folder))
+                return False
         # Otherwise we try to store the currently opened file, if there is any.
         else:
             if __sessions__.is_set():
@@ -153,8 +153,7 @@ class Store(Command):
                     if __config__.get('autorun').enabled:
                         # TODO(Alex): this is starting to get messy. Move automated commands/modules into a separate common?
                         autorun_module(__sessions__.current.file.sha256)
-                        autorun_command(__sessions__.current.file.sha256)
                         mimetype_modules(__sessions__.current.file.sha256)
-                        mimetype_commands(__sessions__.current.file.sha256)
             else:
                 self.log('error', "No open session. This command expects a file to be open.")
+                return False
