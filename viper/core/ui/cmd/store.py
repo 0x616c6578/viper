@@ -154,6 +154,7 @@ class Store(Command):
                         # TODO(Alex): this is starting to get messy. Move automated commands/modules into a separate common?
                         autorun_module(__sessions__.current.file.sha256)
                         mimetype_modules(__sessions__.current.file.sha256)
+                    return True
             else:
                 self.log('error', "No open session. This command expects a file to be open.")
                 return False
